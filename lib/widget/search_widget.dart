@@ -405,6 +405,10 @@ class _SearchLocationState extends State<SearchLocation>
   void _onClearSearchField() {
     if (!widget.hasDefaultTrailingIcon ||
         _crossFadeState == CrossFadeState.showSecond) {
+      if (_textEditingController.text.isEmpty) {
+        _closeSearch();
+      }
+
       _textEditingController.clear();
       widget.onClearIconPress!();
     }
