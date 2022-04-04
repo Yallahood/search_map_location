@@ -75,11 +75,15 @@ class SearchLocation extends StatefulWidget {
   /// The color for the search field hintText.
   final Color? hintColor;
 
+  /// Controlls wether there will be a trainling icon or not.
+  final bool hasDefaultTrailingIcon;
+
   SearchLocation({
     required this.apiKey,
     this.placeholder = 'Search',
     this.icon = Icons.search,
     this.hasClearButton = true,
+    this.hasDefaultTrailingIcon = true,
     this.clearIcon = Icons.clear,
     this.iconColor = Colors.blue,
     this.onSelected,
@@ -146,7 +150,7 @@ class _SearchLocationState extends State<SearchLocation>
     _textEditingController.addListener(_autocompletePlace);
     customListener();
 
-    if (widget.hasClearButton) {
+    if (widget.hasClearButton && widget.hasDefaultTrailingIcon) {
       _fn.addListener(() async {
         if (_fn.hasFocus)
           setState(() => _crossFadeState = CrossFadeState.showSecond);
@@ -378,24 +382,32 @@ class _SearchLocationState extends State<SearchLocation>
           Container(width: 15),
           if (widget.hasClearButton)
             GestureDetector(
-              onTap: () {
-                if (_crossFadeState == CrossFadeState.showSecond) {
-                  _textEditingController.clear();
-                  widget.onClearIconPress!();
-                }
-              },
+              onTap: _onClearSearchField,
               // child: Icon(_inputIcon, color: this.widget.iconColor),
-              child: AnimatedCrossFade(
-                crossFadeState: _crossFadeState,
-                duration: Duration(milliseconds: 300),
-                firstChild: Icon(widget.icon, color: widget.iconColor),
-                secondChild: Icon(Icons.clear, color: widget.iconColor),
-              ),
+              child: widget.hasDefaultTrailingIcon
+                  ? AnimatedCrossFade(
+                      crossFadeState: _crossFadeState,
+                      duration: Duration(milliseconds: 300),
+                      firstChild: Icon(widget.icon, color: widget.iconColor),
+                      secondChild: Icon(Icons.clear, color: widget.iconColor),
+                    )
+                  : (_isEditing
+                      ? Icon(Icons.clear, color: widget.iconColor)
+                      : const SizedBox()),
             ),
-          if (!widget.hasClearButton) Icon(widget.icon, color: widget.iconColor)
+          if (!widget.hasClearButton && widget.hasDefaultTrailingIcon)
+            Icon(widget.icon, color: widget.iconColor)
         ],
       ),
     );
+  }
+
+  void _onClearSearchField() {
+    if (!widget.hasDefaultTrailingIcon ||
+        _crossFadeState == CrossFadeState.showSecond) {
+      _textEditingController.clear();
+      widget.onClearIconPress!();
+    }
   }
 
   InputDecoration _inputStyle() {
