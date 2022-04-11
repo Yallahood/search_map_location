@@ -117,6 +117,7 @@ class _SearchLocationState extends State<SearchLocation>
 
   List<dynamic> _placePredictions = [];
   bool _isEditing = false;
+  bool _canClearSearchText = false;
   Geocoding? geocode;
 
   String _tempInput = "";
@@ -164,6 +165,8 @@ class _SearchLocationState extends State<SearchLocation>
   }
 
   void _autocompletePlace() async {
+    _canClearSearchText = _textEditingController.text.trim().isNotEmpty;
+
     if (_fn.hasFocus) {
       setState(() {
         _currentInput = _textEditingController.text;
@@ -391,7 +394,7 @@ class _SearchLocationState extends State<SearchLocation>
                       firstChild: Icon(widget.icon, color: widget.iconColor),
                       secondChild: Icon(Icons.clear, color: widget.iconColor),
                     )
-                  : (_isEditing
+                  : (_isEditing || _canClearSearchText
                       ? Icon(Icons.clear, color: widget.iconColor)
                       : const SizedBox()),
             ),
@@ -411,6 +414,7 @@ class _SearchLocationState extends State<SearchLocation>
 
       _textEditingController.clear();
       widget.onClearIconPress!();
+      _fn.requestFocus();
     }
   }
 
